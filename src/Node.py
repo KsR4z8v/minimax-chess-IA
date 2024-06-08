@@ -1,13 +1,17 @@
 class Node:
     def __init__(self, game: list, parent, type, utility, deep) -> None:
         self.game = game
-        self.parent = parent
+        self.parent: Node = parent
         self.type = type
         self.deep = deep
         self.utility = utility
-        self.minimax: Node = None  # guardo el nodo de la desicion minimax tomada
+        self.minimax = None  # guardo el nodo de la desicion minimax tomada
         self.p1 = 0  # Puntaje jugador 1 // total de fichas de player 1
         self.p2 = 0  # Puntaje jugador 2 // total de fichas de player 2
+        self.alfa = float('-inf')
+        self.beta = float('inf')
+        self.totalChilds = 0
+        self.totalChildChecks = 0
 
     def isLeft(self):  # se calcula que pasa en el nodo y se guarda el puntaje de cada jugador que seria el numero de fichas de cada uno
         self.p1 = 0
@@ -20,19 +24,38 @@ class Node:
                     self.p2 += 1
         return self.p1 == 0 or self.p2 == 0
 
+    def heredateIntervale(self):
+        if (self.parent != None):
+            self.alfa = self.parent.alfa
+            self.beta = self.parent.beta
+
     def calculateUtility(self):
-        if (self.type == 1):  # en caso de que sea un nodo tipo MAX
-            if self.p2 == 0:
-                self.utility = float('-inf')
-            elif self.p1 == 0:
-                self.utility = float('inf')
+        if self.p2 == 0:
+            self.utility = float('-inf')
+        elif self.p1 == 0:
+            self.utility = float('inf')
+        else:
+            if (self.type == 1):  # en caso de que sea un nodo tipo MAX
+                self.utility = (16-self.p1) + self.p2
             else:
-                self.utility = 16-self.p1
-        else:  # en caso de que sea un nodo tipo MIN
-            if self.p1 == 0:
-                self.utility = float('-inf')
-            elif self.p2 == 0:
-                self.utility = float('inf')
-            else:
-                self.utility = -(16-self.p2)
+                self.utility = -((16-self.p2) + self.p1)
+
+        self.informeUtility()
         return self.utility
+
+    def informeUtility(self):
+        if self.parent != None:
+            if (self.parent.type == 1 and self.utility >= self.parent.utility):  # MAX
+                self.parent.utility = self.utility
+                self.parent.alfa = self.utility
+                self.parent.minimax = self.game
+
+            if (self.parent.type == -1 and self.utility <= self.parent.utility):  # MIN
+                self.parent.utility = self.utility
+                self.parent.beta = self.utility
+                self.parent.minimax = self.game
+
+            self.parent.totalChildChecks += 1
+
+            if self.parent.totalChilds == self.parent.totalChildChecks:
+                self.parent.informeUtility()
