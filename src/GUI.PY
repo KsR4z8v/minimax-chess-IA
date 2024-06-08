@@ -23,6 +23,7 @@ class GUI:
 
         self.WHITE_COLOR = (231, 233, 209)
         self.GREEN_COLOR = (122, 146, 89)
+        self.POS_SELECTED_COLOR = (185, 202, 66)
 
         #
         self.chess = Chess(1)
@@ -82,6 +83,10 @@ class GUI:
                 else:
                     pygame.draw.rect(self.screen, self.GREEN_COLOR,
                                      (c, r, self.width_block, self.width_block))
+                if (j == self.posSelected[0] and i == self.posSelected[1]):
+                    pygame.draw.rect(self.screen,  self.POS_SELECTED_COLOR,
+                                     (c, r, self.width_block, self.width_block))
+
                 if (elem == 'T1'):
                     self.screen.blit(self.TW, (c+4, r+10))
 
@@ -134,7 +139,7 @@ class GUI:
         self.running = True
 
         self.calculateScreen()
-        movement = list()
+        self.posSelected = [None, None]  # x, y
         onPress = True
         while self.running:
             for event in pygame.event.get():
@@ -151,18 +156,21 @@ class GUI:
             y = int(current_position[1]/self.width_block)
 
             if onPress and pygame.mouse.get_pressed()[0]:
-
                 onPress = False
+                if (self.posSelected[0] != None and self.posSelected[1] != None):
 
-                movement.append((x, y))
-                if len(movement) == 2:
-
-                    h1 = threading.Thread(
-                        target=self.chess.run, args=(movement[0][0], movement[0][1], movement[1][0], movement[1][1],))
-                    h1.start()
-                    movement.clear()
-                elif (self.chess.globalGame[movement[0][1]][movement[0][0]] == '  '):
-                    movement.clear()
+                    if self.chess.globalGame[y][x][1] == '1' and self.chess.globalGame[y][x] != '  ':
+                        self.posSelected[0], self.posSelected[1] = x, y
+                    else:
+                        if (self.posSelected != [x, y]):
+                            thread = threading.Thread(target=self.chess.run, args=(
+                                self.posSelected[0], self.posSelected[1], x, y,))
+                            thread.start()
+                            self.posSelected[0], self.posSelected[1] = None, None
+                else:
+                    if self.chess.globalGame[y][x] != '  ':
+                        self.posSelected[0] = x
+                        self.posSelected[1] = y
 
             pygame.display.flip()
             self.clock.tick(60)
