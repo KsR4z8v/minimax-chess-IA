@@ -3,6 +3,7 @@ from Node import Node
 import copy
 from tabulate import tabulate
 from os import system
+from time import sleep
 
 
 test1 = [
@@ -31,7 +32,7 @@ test2 = [
 
 class Chess:
     def __init__(self, humanPlayer) -> None:
-        self.globalGame = [
+        self.init_game = [
             ['T1', 'C1', 'A1', 'R1', 'N1', 'A1', 'C1', 'T1'],
             ['P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1'],
             ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -44,15 +45,15 @@ class Chess:
         # -1=MIN , 1=MAX
         self.humanPlayer = -1 if humanPlayer == 2 else 1
         self.deep_limit = 5
+        self.time_line = [self.init_game]
 
-    def run(self, x0, y0, x1, y1):
+    def run(self, x0, y0, x1, y1, callbackMessage):
 
-        selfMoves = []
+        selfMoves = list()
         mustCapture = self.generateChilds(selfMoves,
-                                          Node(self.globalGame, None, 1, 0, 0))
-
-        aux = copy.deepcopy(self.globalGame)
-        ficha = self.globalGame[y0][x0]
+                                          Node(self.time_line[-1], None, 1, 0, 0))
+        aux = copy.deepcopy(self.time_line[-1])
+        ficha = self.time_line[-1][y0][x0]
         aux[y0][x0] = '  '
         aux[y1][x1] = ficha
         isValid = False
@@ -60,41 +61,48 @@ class Chess:
             if aux == child.game:
                 isValid = True
                 break
-        if (not isValid):
+        if not isValid:
             if (mustCapture):
-                print('Debe capturar una ficha')
-            else:
-                print('Movimiento Invalido')
+                return callbackMessage('Debes capturar')
             return
-
-        self.globalGame[y1][x1] = ficha
-        self.globalGame[y0][x0] = '  '
-
+        self.time_line.append(aux)
         # genero la desicion minimax
-        node = self.minimax(-1, self.deep_limit)
+        node: Node = self.minimax(-1,
+                                  copy.deepcopy(self.time_line[-1]), self.deep_limit)
 
-        if (node.minimax == None):  # si no hubo desicion minimax evaluo si hubo un ganador
+        if (node.minimax is None):  # si no hubo desicion minimax evaluo si hubo un ganador
+            self.time_line.append(node.minimax)
             if node.p1 < node.p2:
-                print('Gana jugador 1 -')
-                return
+                callbackMessage('Gana jugador 1')
             elif node.p1 > node.p2:
-                print('Gana jugador 2 -')
-                return
+                callbackMessage('Gana jugador 2')
             else:
-                print('Empate')
-                return
-        self.globalGame = copy.deepcopy(node.minimax)
-        node = Node(self.globalGame, None, None, None, 0)
-        node.isLeft()
-
-        if node.p1 == 0:
-            print('Gana jugador 1 *')
-            return
-        if node.p2 == 0:
-            print('Gana jugador 2 *')
-            return
-
+                callbackMessage('Empate')
+            self.restart()
+        else:
+            self.time_line.append(node.minimax)
+            node.game = node.minimax
+            node.isLeft()
+            if node.p1 == 0:
+                callbackMessage('Gana jugador 1')
+                self.restart()
+            if node.p2 == 0:
+                callbackMessage('Gana jugador 2')
+                self.restart()
     # funcion auxiliar que crea un nodo y lo retorna
+
+    def restart(self):
+        while len(self.time_line) != 1:
+            self.time_line.pop()
+            sleep(0.01)
+
+    def revert(self):
+        if len(self.time_line) < 3:
+            return
+        self.time_line.pop()
+        self.time_line.pop()
+        self.globalGame = self.time_line[len(self.time_line)-1]
+
     def createChild(self, parent: Node, ficha, i, j, xi, yi):
         game = copy.deepcopy(parent.game)
         game[yi][xi] = ficha
@@ -283,10 +291,10 @@ class Chess:
                 stack.append(child)
         return moves[0]
 
-    def minimax(self, player_minimax, deep_limit) -> Node:
+    def minimax(self, player_minimax, game_state, deep_limit) -> Node:
         # nodo inicial del juego actual / por defecto la maquina juega minimizando, player1 = MAX player2 = MIN
-        initNode = Node(copy.deepcopy(self.globalGame),
-                        None, player_minimax, -1*player_minimax*float('inf'), 0)
+        initNode = Node(game_state, None, player_minimax, -
+                        1*player_minimax*float('inf'), 0)
         stack = [initNode]  # generar los hijos por profundidad
         while len(stack) != 0:
             currentNode: Node = stack.pop()
