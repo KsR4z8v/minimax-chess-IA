@@ -4,14 +4,6 @@ import pygame
 from Chess import Chess
 from time import sleep
 
-"""
-Autores:
-Oscar Fernando Rivera Pardo
-Jose David Suarez Cardona
-Jeferson Aguiar Dominguez
-"""
-
-
 WIDTH = 600
 HEIGHT = 600
 
