@@ -1,8 +1,7 @@
-import numpy as np
 from Node import Node
 import copy
-from tabulate import tabulate
-from os import system
+""" from tabulate import tabulate
+from os import system """
 from time import sleep
 
 
@@ -29,6 +28,17 @@ test2 = [
     ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
 ]
 
+test3 = [
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', 'P1'],
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+    ['  ', 'P2', '  ', '  ', '  ', '  ', '  ', '  '],
+    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+]
+
 
 class Chess:
     def __init__(self, humanPlayer) -> None:
@@ -46,16 +56,19 @@ class Chess:
         self.humanPlayer = -1 if humanPlayer == 2 else 1
         self.deep_limit = 5
         self.time_line = [self.init_game]
+        # pieces que pueden reclamar los peones que llegan al final del tablero
+        self.TO_RECLAIMN = ['A', 'C', 'T', 'R', 'N']
 
-    def run(self, x0, y0, x1, y1, callbackMessage):
-
+    def run(self, x0, y0, x1, y1, pieceToReclaimn, callbackMessage):
         selfMoves = list()
         mustCapture = self.generateChilds(selfMoves,
                                           Node(self.time_line[-1], None, 1, 0, 0))
+
         aux = copy.deepcopy(self.time_line[-1])
-        ficha = self.time_line[-1][y0][x0]
+        piece = self.time_line[-1][y0][x0]
         aux[y0][x0] = '  '
-        aux[y1][x1] = ficha
+        aux[y1][x1] = pieceToReclaimn + \
+            str(self.humanPlayer) if pieceToReclaimn is not None else piece
         isValid = False
         for child in selfMoves:
             if aux == child.game:
@@ -103,13 +116,11 @@ class Chess:
         self.time_line.pop()
         self.globalGame = self.time_line[len(self.time_line)-1]
 
-    def createChild(self, parent: Node, ficha, i, j, xi, yi):
+    def createChild(self, parent: Node, piece, i, j, xi, yi):
         game = copy.deepcopy(parent.game)
-        game[yi][xi] = ficha
+        game[yi][xi] = piece
         game[i][j] = '  '
         type: int = parent.type*-1
-        """ self.printGame(game)
-        system('pause') """
         utility = float(
             '-inf') if type == 1 else float('inf')
         return Node(game, parent, type, utility, parent.deep+1)
@@ -143,9 +154,8 @@ class Chess:
         xi = j
         # movimientos basicos del peon
         if (yi >= 0 and yi <= 7 and node.game[yi][xi] == '  '):
-            if yi == 0 or yi == 7:  # si llego a un extremo para reclamar una ficha
-                toReclaimn = ['A', 'C', 'T', 'R', 'N']
-                for f in toReclaimn:
+            if yi == 0 or yi == 7:  # si llego a un extremo para reclamar una piece
+                for f in self.TO_RECLAIMN:
                     moves[1].append((self.createChild(
                         node, f+str(playerTurn), i, j, xi, yi), False))
             else:
@@ -256,25 +266,25 @@ class Chess:
         playerTurn = 1 if currentNode.type == 1 else 2  # TURNO
         for i in range(0, 8):  # rows
             for j in range(0, 8):  # columns
-                ficha = currentNode.game[i][j]
-                if (ficha == f'P{playerTurn}'):  # peon
+                piece = currentNode.game[i][j]
+                if (piece == f'P{playerTurn}'):  # peon
                     self.generate_movements_pawn(
                         moves, currentNode, playerTurn, i, j)
-                if (ficha == f'C{playerTurn}'):  # caballo
+                if (piece == f'C{playerTurn}'):  # caballo
                     self.generate_movements_hourse(
                         moves, currentNode, playerTurn, i, j)
-                if (ficha == f'A{playerTurn}'):  # Alfir
+                if (piece == f'A{playerTurn}'):  # Alfir
                     self.generate_movements_diagonals(
                         moves, currentNode, playerTurn, i, j, 8)
-                if (ficha == f'R{playerTurn}'):  # REY
+                if (piece == f'R{playerTurn}'):  # REY
                     self.generate_movements_cross(
                         moves, currentNode, playerTurn, i, j, 2)
                     self.generate_movements_diagonals(
                         moves, currentNode, playerTurn, i, j, 2)
-                if (ficha == f'T{playerTurn}'):  # TORRE
+                if (piece == f'T{playerTurn}'):  # TORRE
                     self.generate_movements_cross(
                         moves, currentNode, playerTurn, i, j, 8)
-                if (ficha == f'N{playerTurn}'):  # REYNA
+                if (piece == f'N{playerTurn}'):  # REYNA
                     self.generate_movements_cross(
                         moves, currentNode, playerTurn, i, j, 8)
                     self.generate_movements_diagonals(
@@ -318,8 +328,8 @@ class Chess:
 
         return initNode
 
-    def printGame(self, game):
+    """ def printGame(self, game):
         for i in range(0, 8):
             print(' '*2, i, end=' ')
         print()
-        print(tabulate(game, tablefmt="simple_grid"))
+        print(tabulate(game, tablefmt="simple_grid")) """

@@ -63,8 +63,8 @@ class GUI:
         y = (self.HEIGHT/2) - width_y/2
 
         z = pygame.draw.rect(screen, self.BACKGROUND_COLOR,
-                             (x, y, width_x, width_y), border_bottom_left_radius=20, border_bottom_right_radius=20,
-                             border_top_left_radius=20, border_top_right_radius=20)
+                             (x, y, width_x, width_y), border_bottom_left_radius=15, border_bottom_right_radius=15,
+                             border_top_left_radius=15, border_top_right_radius=15)
         font = pygame.font.SysFont('Verdana', 20)
         size = font.size(text)
         screen.blit(font.render(text, 1, self.WHITE_COLOR),
@@ -91,6 +91,8 @@ class GUI:
                 if elem != '  ':
                     screen.blit(self.icons[elem], (c+4, r+10))
 
+                if self.posPreview[0] == j and self.posPreview[1] == i:
+                    screen.blit(self.icons[self.posPreview[2]], (c+4, r+10))
                 c += self.width_block
             r += self.width_block
             c = 0
@@ -108,8 +110,10 @@ class GUI:
         on_press = False
         on_revert = False
         on_restart = False
+        on_reclamain = False
         bussInfo = []
-
+        reclaimPieceIndex = 0
+        self.posPreview = [None, None, None]
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -121,6 +125,12 @@ class GUI:
                 if event.type == pygame.KEYUP:
                     on_revert = False
                     on_restart = False
+
+                if on_reclamain and event.type == pygame.MOUSEWHEEL:
+                    if (reclaimPieceIndex >= len(self.chess.TO_RECLAIMN)):
+                        reclaimPieceIndex = 0
+                    self.posPreview[2] = self.chess.TO_RECLAIMN[reclaimPieceIndex]+'1'
+                    reclaimPieceIndex += 1
 
             if len(bussInfo) > 0:
                 while len(bussInfo) != 0:
@@ -137,20 +147,35 @@ class GUI:
 
             if not on_press and pygame.mouse.get_pressed()[0]:
                 on_press = True
-                last_line = self.chess.time_line[-1]
+                last_move = self.chess.time_line[-1]
+
+                # seleciona el destino de la ficha
                 if (self.pos_selected[0] is not None and self.pos_selected[1] is not None):
 
-                    if last_line[y][x][1] == '1' and last_line[y][x] != '  ':
+                    if last_move[y][x][1] == '1' and last_move[y][x] != '  ':
                         self.pos_selected[0], self.pos_selected[1] = x, y
                     else:
+                        on_reclamain = False
+                        pieceToReclaimn = None
+                        if self.posPreview[2] is not None:
+                            pieceToReclaimn = self.posPreview[2][0]
+
+                        self.posPreview = [None, None, None]
+
                         if self.pos_selected != [x, y] and threading.active_count() == 1:
                             threading.Thread(name='game-chess', target=self.chess.run, args=(
-                                self.pos_selected[0], self.pos_selected[1], x, y, lambda text: bussInfo.append(text))).start()
+                                self.pos_selected[0], self.pos_selected[1], x, y, pieceToReclaimn, lambda text: bussInfo.append(text))).start()
                             self.pos_selected[0], self.pos_selected[1] = None, None
-                else:
-                    if last_line[y][x] != '  ':
+                else:  # seleciona la piece
+                    if last_move[y][x] != '  ':
                         self.pos_selected[0] = x
                         self.pos_selected[1] = y
+
+                        if (not on_reclamain and last_move[self.pos_selected[1]][self.pos_selected[0]][0] == 'P' and (y+1 == 7)):
+                            on_reclamain = True
+                            reclaimPieceIndex = 0
+                            self.posPreview = [
+                                x, y+1, self.chess.TO_RECLAIMN[reclaimPieceIndex]+'1']
 
             if not on_revert and pygame.key.get_pressed()[pygame.K_a]:
                 on_revert = True
