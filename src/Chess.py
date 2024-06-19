@@ -311,7 +311,7 @@ class Chess:
             currentNode.heredateIntervale()
 
             if (currentNode.alfa >= currentNode.beta):
-                currentNode.parent.informeUtility()
+                currentNode.parent.informUtility()
                 continue
             # verifico si  el nodo es un nodo hoja o si ya alcanzo el limite establecido
             if (currentNode.isLeft() or currentNode.deep == deep_limit):

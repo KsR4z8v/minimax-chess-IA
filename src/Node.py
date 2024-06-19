@@ -41,22 +41,23 @@ class Node:
             else:
                 self.utility = -((16-self.p2) + self.p1)
 
-        self.informeUtility()
+        self.informUtility()
         return self.utility
 
-    def informeUtility(self):
-        if self.parent != None:
-            if (self.parent.type == 1 and self.utility >= self.parent.utility):  # MAX
-                self.parent.utility = self.utility
-                self.parent.alfa = self.utility
-                self.parent.minimax = self.game
+    def informUtility(self):
+        if self.parent is None:
+            return
+        if (self.parent.type == 1 and self.utility >= self.parent.utility):  # MAX
+            self.parent.utility = self.utility
+            self.parent.alfa = self.utility
+            self.parent.minimax = self.game
 
-            if (self.parent.type == -1 and self.utility <= self.parent.utility):  # MIN
-                self.parent.utility = self.utility
-                self.parent.beta = self.utility
-                self.parent.minimax = self.game
+        if (self.parent.type == -1 and self.utility <= self.parent.utility):  # MIN
+            self.parent.utility = self.utility
+            self.parent.beta = self.utility
+            self.parent.minimax = self.game
 
-            self.parent.totalChildChecks += 1
+        self.parent.totalChildChecks += 1
 
-            if self.parent.totalChilds == self.parent.totalChildChecks:
-                self.parent.informeUtility()
+        if self.parent.totalChilds == self.parent.totalChildChecks:
+            self.parent.informUtility()
