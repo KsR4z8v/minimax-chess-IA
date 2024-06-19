@@ -25,9 +25,10 @@ class Node:
         return self.p1 == 0 or self.p2 == 0
 
     def heredateIntervale(self):
-        if (self.parent != None):
-            self.alfa = self.parent.alfa
-            self.beta = self.parent.beta
+        if (self.parent is None):
+            return
+        self.alfa = self.parent.alfa
+        self.beta = self.parent.beta
 
     def calculateUtility(self):
         if self.p2 == 0:
