@@ -72,10 +72,10 @@ class Chess:
             if aux == child.game:
                 isValid = True
                 break
+
         if not isValid:
-            if (mustCapture):
-                return callbackMessage('Debes capturar')
-            return
+            return callbackMessage('Debes capturar') if mustCapture else None
+
         self.time_line.append(aux)
         # genero la desicion minimax
         node: Node = self.minimax(-1,
