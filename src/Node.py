@@ -27,7 +27,7 @@ class Node:
     def heredateIntervale(self):
         if (self.parent is None):
             return
-        self.alfa = self.parent.alfa
+        self.alpha = self.parent.alpha
         self.beta = self.parent.beta
 
     def calculateUtility(self):
@@ -49,7 +49,7 @@ class Node:
             return
         if (self.parent.type == 1 and self.utility >= self.parent.utility):  # MAX
             self.parent.utility = self.utility
-            self.parent.alfa = self.utility
+            self.parent.alpha = self.utility
             self.parent.minimax = self.game
 
         if (self.parent.type == -1 and self.utility <= self.parent.utility):  # MIN
