@@ -5,7 +5,7 @@ class Node:
         self.type = type
         self.deep = deep
         self.utility = utility
-        self.minimax = None  # guardo el nodo de la desicion minimax tomada
+        self.minimax = None  # guardo el estado del tablero con la desicion minimax tomada
         self.p1 = 0  # Puntaje jugador 1 // total de fichas de player 1
         self.p2 = 0  # Puntaje jugador 2 // total de fichas de player 2
         self.alfa = float('-inf')

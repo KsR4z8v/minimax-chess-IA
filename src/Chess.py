@@ -1,7 +1,5 @@
 from Node import Node
 import copy
-""" from tabulate import tabulate
-from os import system """
 from time import sleep
 
 
@@ -41,7 +39,7 @@ test3 = [
 
 
 class Chess:
-    def __init__(self, humanPlayer) -> None:
+    def __init__(self, humanPlayer=1) -> None:
         self.init_game = [
             ['T1', 'C1', 'A1', 'R1', 'N1', 'A1', 'C1', 'T1'],
             ['P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1'],
@@ -121,8 +119,7 @@ class Chess:
         game[yi][xi] = piece
         game[i][j] = '  '
         type: int = parent.type*-1
-        utility = float(
-            '-inf') if type == 1 else float('inf')
+        utility = -1*type*float('inf')
         return Node(game, parent, type, utility, parent.deep+1)
 
     # funcion auxiliar para generar los hijos dado una lista de coordenadas
@@ -154,7 +151,7 @@ class Chess:
         xi = j
         # movimientos basicos del peon
         if (yi >= 0 and yi <= 7 and node.game[yi][xi] == '  '):
-            if yi == 0 or yi == 7:  # si llego a un extremo para reclamar una piece
+            if yi == 0 or yi == 7:  # si llego a un extremo para reclamar una ficha
                 for f in self.TO_RECLAIMN:
                     moves[1].append((self.createChild(
                         node, f+str(playerTurn), i, j, xi, yi), False))
@@ -301,10 +298,11 @@ class Chess:
                 stack.append(child)
         return moves[0]
 
-    def minimax(self, player_minimax, game_state, deep_limit) -> Node:
-        # nodo inicial del juego actual / por defecto la maquina juega minimizando, player1 = MAX player2 = MIN
-        initNode = Node(game_state, None, player_minimax, -
+    def minimax(self, player_minimax, init_state, deep_limit) -> Node:
+
+        initNode = Node(init_state, None, player_minimax, -
                         1*player_minimax*float('inf'), 0)
+
         stack = [initNode]  # generar los hijos por profundidad
         while len(stack) != 0:
             currentNode: Node = stack.pop()
@@ -323,13 +321,4 @@ class Chess:
             if (currentNode.totalChilds == 0):
                 currentNode.calculateUtility()
 
-            """ print(initNode.alfa, initNode.beta,
-                  initNode.totalChilds, initNode.totalChildChecks) """
-
         return initNode
-
-    """ def printGame(self, game):
-        for i in range(0, 8):
-            print(' '*2, i, end=' ')
-        print()
-        print(tabulate(game, tablefmt="simple_grid")) """

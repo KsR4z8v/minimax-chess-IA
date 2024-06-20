@@ -22,7 +22,7 @@ class GUI:
         self.POS_SELECTED_COLOR = (185, 202, 66)
 
         #
-        self.chess = Chess(1)
+        self.chess = Chess()
         current_path = path.dirname(__file__)
         self.icons = {
             "T1": pygame.image.load(
