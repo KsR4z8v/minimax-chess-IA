@@ -127,9 +127,9 @@ class GUI:
                     on_restart = False
 
                 if on_reclamain and event.type == pygame.MOUSEWHEEL:
-                    if (reclaimPieceIndex >= len(self.chess.TO_RECLAIMN)):
+                    if (reclaimPieceIndex >= len(self.chess.TO_RECLAIM)):
                         reclaimPieceIndex = 0
-                    self.posPreview[2] = self.chess.TO_RECLAIMN[reclaimPieceIndex]+'1'
+                    self.posPreview[2] = self.chess.TO_RECLAIM[reclaimPieceIndex]+'1'
                     reclaimPieceIndex += 1
 
             if len(bussInfo) > 0:

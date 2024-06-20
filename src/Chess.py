@@ -55,7 +55,7 @@ class Chess:
         self.deep_limit = 5
         self.time_line = [self.init_game]
         # pieces que pueden reclamar los peones que llegan al final del tablero
-        self.TO_RECLAIMN = ['A', 'C', 'T', 'R', 'N']
+        self.TO_RECLAIM = ['A', 'C', 'T', 'R', 'N']
 
     def run(self, x0, y0, x1, y1, pieceToReclaimn, callbackMessage):
         selfMoves = list()
@@ -93,7 +93,7 @@ class Chess:
         else:
             self.time_line.append(node.minimax)
             node.game = node.minimax
-            node.isLeft()
+            node.isLeaf()
             if node.p1 == 0:
                 callbackMessage('Gana jugador 1')
                 self.restart()
@@ -152,7 +152,7 @@ class Chess:
         # movimientos basicos del peon
         if (yi >= 0 and yi <= 7 and node.game[yi][xi] == '  '):
             if yi == 0 or yi == 7:  # si llego a un extremo para reclamar una ficha
-                for f in self.TO_RECLAIMN:
+                for f in self.TO_RECLAIM:
                     moves[1].append((self.createChild(
                         node, f+str(playerTurn), i, j, xi, yi), False))
             else:
@@ -164,7 +164,7 @@ class Chess:
                     node, node.game[i][j], i, j, xi, yi - direction), False))
 
     # Movmientos CABALLO
-    def generate_movements_hourse(self, moves, node: Node, playerTurn, i, j):
+    def generate_movements_horse(self, moves, node: Node, playerTurn, i, j):
         coordinates = [(i-2, j+1), (i-2, j-1),
                        (i+2, j+1), (i+2, j-1), (i-1, j+2), (i-1, j-2), (i+1, j+2), (i+1, j-2)]
         self.coordinates_to_childs(moves, coordinates, i,
@@ -212,7 +212,7 @@ class Chess:
         self.coordinates_to_childs(moves, coordinates, i,
                                    j, node, playerTurn)
 
-    # movimientos en CRUZ
+    # movimientos en DIAGONAL
     def generate_movements_diagonals(self, moves, node: Node, playerTurn, i, j, max_step):
         coordinates = []
         for k in range(1, max_step):  # diagonal superior derecha
@@ -268,7 +268,7 @@ class Chess:
                     self.generate_movements_pawn(
                         moves, currentNode, playerTurn, i, j)
                 if (piece == f'C{playerTurn}'):  # caballo
-                    self.generate_movements_hourse(
+                    self.generate_movements_horse(
                         moves, currentNode, playerTurn, i, j)
                 if (piece == f'A{playerTurn}'):  # Alfir
                     self.generate_movements_diagonals(
@@ -308,11 +308,11 @@ class Chess:
             currentNode: Node = stack.pop()
             currentNode.heredateIntervale()
 
-            if (currentNode.alfa >= currentNode.beta):
+            if (currentNode.alpha >= currentNode.beta):
                 currentNode.parent.informUtility()
                 continue
             # verifico si  el nodo es un nodo hoja o si ya alcanzo el limite establecido
-            if (currentNode.isLeft() or currentNode.deep == deep_limit):
+            if (currentNode.isLeaf() or currentNode.deep == deep_limit):
                 currentNode.calculateUtility()
                 continue
             self.generateChilds(stack, currentNode)

@@ -8,12 +8,12 @@ class Node:
         self.minimax = None  # guardo el estado del tablero con la desicion minimax tomada
         self.p1 = 0  # Puntaje jugador 1 // total de fichas de player 1
         self.p2 = 0  # Puntaje jugador 2 // total de fichas de player 2
-        self.alfa = float('-inf')
+        self.alpha = float('-inf')
         self.beta = float('inf')
         self.totalChilds = 0
         self.totalChildChecks = 0
 
-    def isLeft(self):  # se calcula que pasa en el nodo y se guarda el puntaje de cada jugador que seria el numero de fichas de cada uno
+    def isLeaf(self):  # se calcula que pasa en el nodo y se guarda el puntaje de cada jugador que seria el numero de fichas de cada uno
         self.p1 = 0
         self.p2 = 0
         for i in range(0, 8):
