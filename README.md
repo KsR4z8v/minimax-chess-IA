@@ -1,6 +1,6 @@
 # ♟️ Chess AI with Minimax and Alpha-Beta Pruning
 
-This project is a chess engine that uses the **Minimax algorithm** enhanced with **Alpha-Beta pruning** to make intelligent decisions. It simulates a two-player game and evaluates moves several turns ahead to select the most strategic path.
+This project is an implementation of Suicide Chess, a variation of standard chess, using the Minimax algorithm enhanced with Alpha-Beta pruning. It simulates a two-player game where the objective is to lose all pieces, and evaluates multiple future moves to determine the most strategic sacrifices according to the rules of this variant.
 
 ## 🧠 AI Overview
 
